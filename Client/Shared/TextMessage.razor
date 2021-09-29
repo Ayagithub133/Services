@@ -1,0 +1,53 @@
+﻿
+@using Services.Shared.Data
+
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+<div class="alert alert-dismissible @alertClass fade show" style="width:100%">
+   
+    @Message<span @onclick="HideMessage" style="font-size:21px;font-weight:200;color:black;width:30px;height:30px;background-color:red;text-align:center;float:right">X</span>
+</div>
+}
+
+
+@code {
+    [Parameter]
+    public string Message { get; set; }
+
+    public AlertMessageType messageType;
+
+    [Parameter]
+    public AlertMessageType MessageType
+    {
+        get => messageType;
+        set
+        {
+            messageType = value;
+            switch(messageType)
+            {
+                case AlertMessageType.Error:
+                    alertClass = "alert-danger";
+                    break;
+
+                case AlertMessageType.Success:
+                    alertClass = "alert-success";
+                    break;
+
+                case AlertMessageType.Warning:
+                    alertClass = "alert-warning";
+                    break;
+                default:break;
+            }
+        }
+    }
+    string alertClass = "alert-info";
+    void HideMessage()
+    {
+        Message = string.Empty;
+    }
+
+        protected override Task OnParametersSetAsync()
+        {
+            return base.OnParametersSetAsync();
+        }
+}

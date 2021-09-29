@@ -1,0 +1,73 @@
+﻿@page "/User/register"
+
+@using Services.Shared.Data
+
+@using System.Text.Json;
+
+
+@inject NavigationManager NavigationManager
+
+<div class="register-design container">
+    <div class="row">
+        <div class="col-lg-7 d-flex align-content-center ">
+            <EditForm Model="@model2">
+                <DataAnnotationsValidator />
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group div-input row">
+                    
+                    <div class="col-11">
+                        <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+                    </div>
+                    <input type="text" placeholder="الاسم الثانى" class="form-control col-5" @bind="model2.SecondName" />
+                    <input type="text" placeholder="الاسم الاول" class="form-control col-5" @bind="model2.FirstName" />
+
+                    <input type="text" placeholder="الاسم الاخير" class="form-control col-11" @bind="model2.LastName" />
+
+                    <input type="text" placeholder="رقم الهاتف" class="form-control col-5" @bind="model2.Phone" />
+
+                    <input type="text" placeholder="البريد الالكترونى" class="form-control col-5" @bind="model2.Email" />
+
+                    <input type="password" placeholder="تأكيد كلمة المرور" class="form-control col-5" @bind="model2.ConfirmPassword" />
+                    <input type="password" placeholder="كلمة المرور" class="form-control col-5" @bind="model2.Password" />
+
+                    <button type="submit" class="form-control col-11" @onclick="UserRegistered">تسجيل حساب</button>
+                    <a href="/User/login">لديا حساب بالفعل</a>
+
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="col-lg-5 div-login-img d-flex align-content-center align-items-center">
+            <img class="img-fluid " src="imgs/register.jpg" />
+        </div>
+    </div>
+</div>
+
+@code {
+    RegisterViewModel model2 = new RegisterViewModel();
+    HttpClient _client = new HttpClient();
+    string message = string.Empty;
+    AlertMessageType messageType = AlertMessageType.Success;
+
+    protected async Task UserRegistered()
+    {
+
+
+        var response = await _client.PostAsJsonAsync("https://localhost:44312/api/AccountUser/register", model2);
+
+        var responseBody = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+
+        if (responseBody.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/User/confirm");
+        }
+        else
+        {
+
+            message = responseBody.Message;
+            messageType = AlertMessageType.Error;
+        }
+
+    }
+
+}

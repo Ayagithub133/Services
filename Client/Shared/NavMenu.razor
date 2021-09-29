@@ -1,0 +1,91 @@
+﻿
+
+@inject NavigationManager navigation
+
+<div class="container-fluid">
+    <div class="nav-style d-flex">
+        <ul class="ul-style-left  d-flex align-items-center justify-content-start ">
+            <AuthorizeView>
+                <Authorized>
+                    <li class="btn">
+                        <NavLink class="nav-link" href="/" @onclick="LogOut">تسجيل الخروج</NavLink>
+                    </li>
+                </Authorized>
+                <NotAuthorized>
+                    <li class="btn">
+                        <NavLink class="nav-link" href="/User/login">تسجيل الدخول</NavLink>
+                    </li>
+                </NotAuthorized>
+
+            </AuthorizeView>
+        </ul>
+
+            <ul class="ul-style  d-flex align-items-center" style="margin-left:30px">
+                <li class="li-select">
+                    <select class="form-control"  @onchange="@((value)=>NavigatToAddHall(value))">
+                        <option class="form-control" selected disabled>إضافة خدمه</option>
+                        <option class="form-control" value="/Hall/addhall">
+                            اضافة قاعة
+                        </option>
+                    
+
+                    </select>
+                </li>
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="inline-li" style="width:150px">
+                            <a class="nav-link" href="/User/profile" style="color: #475c7a;">حسابى</a>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+                <li class="inline-li" style="width:150px">
+                    <a class="nav-link" href="/searchpage" style="color: #475c7a;">تصفح الخدمات</a>
+                </li>
+                <li class="inline-li">
+                    <a class="nav-link" style="color: #475c7a;" href="/"> الرئيسية </a>
+                </li>
+                <li class="inline-li" style="width:150px">
+                    <a class="nav-link" href="/searchpage" style="color: #475c7a;">تواصل معنا</a>
+                </li>
+                <li class="inline-li">
+                    <a class="nav-link" style="color: #475c7a;" href="/"> نبذه عنا</a>
+                </li>
+
+
+            </ul>
+
+
+
+
+
+    </div>
+
+
+</div>
+<br />
+
+
+   
+ 
+@code
+{
+    HttpClient client = new HttpClient();
+   
+   
+    public async Task LogOut()
+    {
+
+        var response=
+        await client.GetAsync("https://localhost:44312/api/AccountUser/LogOutUser");
+        if(response.IsSuccessStatusCode)
+        {
+            navigation.NavigateTo("/",forceLoad:true);
+        }
+
+    }
+
+    private void NavigatToAddHall(ChangeEventArgs value)
+    {
+        navigation.NavigateTo(value.Value.ToString());
+    }
+}

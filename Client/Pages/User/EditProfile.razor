@@ -1,0 +1,77 @@
+﻿@page "/User/editprofile"
+@using Services.Shared.Data
+
+@using System.Text.Json;
+<AuthorizeView Context="authorizedContext">
+    <Authorized>
+        <div class="container-fluid" style="direction:rtl;margin-bottom:100px;">
+            <div class="col-lg-9 ">
+                <div class="card " style="margin-right:-30px;background-color:#83eaf1;">
+
+                    <div class="card-body">
+                        <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+                        <div class="d-md-flex">
+                            <EditForm Model="@profile" Context="EditContx">
+                                <DataAnnotationsValidator></DataAnnotationsValidator>
+                                <ValidationSummary></ValidationSummary>
+                                <div class="form-group div-input row">
+                                    <input type="text" class="form-control col-5" @bind="@profile.FirstName" />
+                                    <input type="text" class="form-control col-5" @bind="@profile.SecondName" />
+                                    <input type="email" class="form-control col-5" @bind="@profile.Email" />
+                                    <input type="text" class="form-control col-5" @bind="@profile.PhoneNumber" />
+                                    <input type="file" class="form-control col-11" @bind="@profile.Image" />
+                                    <input type="password" placeholder="كلمة المرور" class="form-control col-5" @bind="@profile.Password" />
+                                   
+                                    <input type="password" placeholder="تأكيد كلمة المرور" class="form-control col-5" @bind="@profile.ConfirmPassword" />
+                                    
+                                    <button type="submit" class="form-control col-6 " style="background:linear-gradient(#380036 , #0cbaba)" @onclick="Edit">تعديل</button>
+                                </div>
+                            </EditForm>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    HttpClient client = new HttpClient();
+    UpdateProfileRequest profile = new UpdateProfileRequest();
+
+    public string message = string.Empty;
+    public AlertMessageType messageType = AlertMessageType.Success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    public async Task LoadData()
+    {
+        var response = await client.GetAsync($"https://localhost:44312/api/UserProfile/currentuser");
+        if ((int)response.StatusCode == 200)
+        {
+            var contentString = await response.Content.ReadAsStringAsync();
+            profile = JsonSerializer.Deserialize<UpdateProfileRequest>(contentString,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+    }
+    public async Task Edit()
+    {
+        var response = await client.PostAsJsonAsync("https://localhost:44312/api/UserProfile/editprofile", profile);
+        var result = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+        if(result.IsSuccess)
+        {
+            message = result.Message;
+            messageType = AlertMessageType.Success;
+        }
+        else
+        {
+            message = result.Message;
+            messageType = AlertMessageType.Error;
+
+        }
+    }
+}

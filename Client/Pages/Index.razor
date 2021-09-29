@@ -1,0 +1,74 @@
+﻿@page "/"
+
+
+@using Services.Shared.Data
+
+@using System.Text.Json;
+@using Newtonsoft.Json
+@using System.Text  
+@inject NavigationManager NavigationManager
+
+
+  
+
+        <Services.Client.Shared.Slide></Services.Client.Shared.Slide>
+<a href="/User/chat">Chat</a>
+        <div class="container-fluid home-content">
+            <div class="row d-flex align-items-center lign-content-center">
+                <div class="col-lg-3 div-service">
+                    <div class="row d-flex align-items-center lign-content-center div1">
+                        <a href="#" class=" text-center text-justify text-slide stretched-link">
+                            مستلزمات البناء
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 div-service ">
+                    <div class="row d-flex align-items-center lign-content-center div2">
+                        <a href="#" class=" text-center text-justify text-slide stretched-link">
+                            تنسيق الحدائق وزراعة الاشجار
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 div-service ">
+                    <div class="row d-flex align-items-center lign-content-center div3">
+                        <a href="/Hall/home" class=" text-center text-justify text-slide stretched-link">
+                            قاعة المناسبات
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+  
+
+
+
+
+@code{
+
+
+    HttpClient _client = new HttpClient();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        
+
+        var response = await _client.GetAsync("https://localhost:44312/api/AccountUser/currentuser");
+        var stringResponse = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<UserManagerResponse>(stringResponse);
+
+        if(result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+
+}

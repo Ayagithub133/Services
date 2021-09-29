@@ -1,0 +1,195 @@
+﻿@page "/Hall/addhall"
+@using Services.Shared.Data
+@using Services.Shared.Data.Enums
+@using Microsoft.AspNetCore.Http;
+@inject NavigationManager navigate
+
+
+
+<AuthorizeView Context="AuthrizeContext">
+    <Authorized>
+        <div class="hall-layout container-fluid" style="margin-bottom:100px;direction:rtl">
+            <div class="row">
+                <div class="col-lg-12 col-ml-12">
+                    <div class="row">
+
+                        <div class="col-12 mt-5">
+                            <div class="card">
+                                <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+                                <EditForm Model="@hall" Context="EditContext">
+                                    <DataAnnotationsValidator></DataAnnotationsValidator>
+                                    <ValidationSummary></ValidationSummary>
+
+                                  
+                                    
+                                    <div class="card-body  align-content-center" >
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label class="col-form-label  d-flex align-items-end label-style" >ضع عنوان مناسب يصف خدمتك*</label>
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.ServiceTitle" >
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+
+
+                                            <div class="form-group col-md-4">
+                                                <label for="example-date-input  d-flex align-items-end label-style" class="col-form-label  d-flex align-items-end label-style">تاريخ الحجز</label>
+                                                <input class="form-control controls-style" type="date" placeholder="تاريخ الحجز" id="example-date-input" @bind="@hall.BookDate">
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="example-text-input  d-flex align-items-end label-style" class="col-form-label  d-flex align-items-end label-style">رقم التواصل*</label>
+                                                <input class="form-control controls-style" type="text" placeholder="رقم التواصل" id="example-text-input" @bind="@hall.ContactNumber">
+                                            </div>
+                                            <div class="form-group col-md-4 ">
+                                                <label for="example-text-input  d-flex align-items-end label-style" class="col-form-label  d-flex align-items-end label-style" >المدينه*</label>
+                                                <input class="form-control controls-style" type="text" placeholder="المدينه" id="example-text-input"@bind="@hall.UserCity">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label class="col-form-label  d-flex align-items-end label-style">نوع الحجز*</label>
+                                                <InputSelect @bind-Value="@hall.BookType" class="custom-select controls-style">
+                                                    <option selected="selected" disabled>--نوع االحجز--</option>
+                                                    @foreach (var item in Enum.GetValues(typeof(BookType)))
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="col-form-label  d-flex align-items-end label-style">قائمة الطعام*</label>
+
+                                                <InputSelect @bind-Value="@hall.Menue" class="custom-select controls-style">
+                                                    <option selected="selected" disabled>--نوع الطعام--</option>
+                                                    @foreach (var item in Enum.GetValues(typeof(Menue)))
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                </InputSelect>
+                                               
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label class="col-form-label  d-flex align-items-end label-style">نوع الحضور*</label>
+                                                
+                                                <InputSelect @bind-Value="@hall.GuestGender" class="custom-select controls-style">
+                                                    <option selected="selected" disabled>--نوع الحضور--</option>
+                                                    @foreach (var item in Enum.GetValues(typeof(GuestGender)))
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="col-form-label  d-flex align-items-end label-style">حجم القاعة</label>
+
+                                                <InputSelect @bind-Value="@hall.HallSize" class="custom-select controls-style">
+                                                    <option selected="selected" disabled>--نوع االحجز--</option>
+                                                    @foreach (var item in Enum.GetValues(typeof(HallSize)))
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="form-group col-12">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">تفاصيل الخدمة*</label>
+                                                <textarea class="form-control textarea-style" id="example-search-input" rows="6" placeholder="تفاصيل الخدمة " @bind="@hall.HallDescription"></textarea>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="form-group col-4">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">عدد الحضور*</label>
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.GuestNumber">
+                                            </div>
+
+                                            <div class="form-group col-4">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">الميزانية المقترحة*</label>
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.Budget">
+                                            </div>
+
+
+                                        </div>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="form-group col-12">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">عنوان الحجز</label>
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.Location">
+                                            </div>
+                                        </div>
+                 
+                                        <div class="row">
+                                            <div class="form-group col-4">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">عدد المباشرين</label>
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.SuperVisorMNumber">
+                                            </div>
+                                            <div class="form-group col-4">
+                                                <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">عدد المباشرات</label>
+
+                                                <input class="form-control controls-style" type="text" id="example-search-input" @bind="@hall.SuperVisorFNumber">
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+                                            <div class="form-group col-4">
+
+                                                <button class="btn btn-dark" type="submit" id="example-search-input" style="width:100%;background-color: #475c7a;" @onclick="AddingHall">أضف</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </Authorized>
+    <NotAuthorized>
+        <Services.Client.Pages.User.Login></Services.Client.Pages.User.Login>
+    </NotAuthorized>
+</AuthorizeView>
+        
+
+@code {
+
+    HttpClient client = new HttpClient();
+    public HallViewModel hall = new HallViewModel();
+    public string message = string.Empty;
+    public AlertMessageType messageType = AlertMessageType.Success;
+
+
+
+
+
+    public async Task AddingHall()
+    {
+
+
+        var response = await client.PostAsJsonAsync("https://localhost:44312/api/Hall/addHall", hall);
+        var result = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+        if(result.IsSuccess)
+        {
+            message = result.Message;
+            messageType = AlertMessageType.Success;
+            
+        }
+        else
+        {
+            message = result.Message;
+            messageType = AlertMessageType.Error;
+        }
+    }
+
+}

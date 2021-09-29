@@ -1,0 +1,101 @@
+﻿@page "/User/personalData/{Id}"
+@page "/User/personalData"
+
+@using Services.Shared.Data
+
+@using System.Text.Json;
+
+
+@inject NavigationManager NavigationManager
+<div class="container-fluid" style="direction:rtl;margin-bottom:100px;">
+    <div class="col-lg-9 ">
+        <div class="card " style="margin-right:-30px;background-color:#83eaf1;">
+
+            <div class="card-body">
+                <div class="d-md-flex">
+                    <div class="row m-auto text-justify" style="width:100%;height:100%">
+                        <div class="col-12 d-flex align-content-center">
+                            <img src="Uploads/user.png" class="img-fluid img-thumbnail m-auto" style="width:150px;height:150px" />
+                        </div>
+                        <div class="col-12 d-flex align-content-center">
+                            <p class="text-dark m-auto ">@user.UserName</p>
+
+                        </div>
+                        <hr />
+
+
+
+                        <div class="col-3 mt-5">
+                            <p class="text-dark " style="font-size:21px">عدد الخدمات</p>
+                        </div>
+                        <div class="col-9 mt-5">
+                            <p class="text-dark m-auto text-right" style="font-size:21px">@user.ServiceCount</p>
+                        </div>
+                        <div class="col-3 mt-2">
+                            <p class="text-dark " style="font-size:21px">عدد الخدمات المكتملة</p>
+                        </div>
+                        <div class="col-9 mt-2">
+                            <p class="text-dark m-auto text-right" style="font-size:21px">0</p>
+                        </div>
+                        <div class="col-3 mt-2">
+                            <p class="text-dark " style="font-size:21px">عدد الطلبات</p>
+                        </div>
+                        <div class="col-9 mt-2">
+                            <p class="text-dark m-auto text-right" style="font-size:21px">@user.OffersCount</p>
+                        </div>
+                        <div class="col-3 mt-2">
+                            <p class="text-dark " style="font-size:21px">تاريخ التسجيل</p>
+                        </div>
+                        <div class="col-9 mt-2">
+                            <p class="text-dark m-auto text-right" style="font-size:21px">@user.CreateAt.ToShortDateString()</p>
+                        </div>
+                        <div class="col-3 mt-2">
+                            <p class="text-dark " style="font-size:21px">الحالة</p>
+                        </div>
+                        @if (user.isActive)
+                        {
+                            <div class="col-9 mt-2">
+                                <p class="text-dark m-auto text-right" style="font-size:21px">نشط الان</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-9 mt-2">
+                                <p class="text-dark m-auto text-right" style="font-size:21px">مغلق</p>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    HttpClient client = new HttpClient();
+    ProfileUser user = new ProfileUser();
+    [Parameter]
+    public string Id { set; get; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    public async Task LoadData()
+    {
+        var response = await client.GetAsync($"https://localhost:44312/api/UserProfile/userprofile?id={Id}");
+        var contentString = await response.Content.ReadAsStringAsync();
+        user = JsonSerializer.Deserialize<ProfileUser>(contentString,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+}

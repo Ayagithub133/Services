@@ -1,0 +1,110 @@
+﻿@page "/User/offers"
+
+@using Services.Shared.Data
+@using System.Text.Json
+
+<div class="container-fluid" style="direction:rtl;margin-bottom:100px">
+    <div class="col-lg-12 " >
+        <div class="card " style="margin-right:-30px;height:100%;width:100%">
+            <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+            @if (isNotEmpty)
+            {
+                foreach (var item in offers)
+                {
+                    <div class="col-8 mt-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <div class="col-8 ">
+                                        <div class="row" style="width:100%">
+
+                                            <div class="col-6  d-flex align-content-end mt-1">
+
+                                                <img src="icons/clock.gif" style="width:30px;height:30px" />
+
+                                                <p>@item.AddTime.ToShortDateString()</p>
+
+
+                                            </div>
+                                            <div class="col-12  d-flex align-content-center text-justify mt-2">
+                                                <a class="stretched-link" href="@($"/Hall/offer/{item.HallID}")">
+
+                                                    @if (item.TextOffer.Length > 100)
+                                                    {
+                                                        <h4 class="text-center text-justify" style="width:100%">
+                                                            @item.TextOffer.Substring(0, 100).......
+                                                        </h4>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h4 class="text-center text-justify" style="width:100%">
+                                                            @item.TextOffer
+                                                        </h4>
+                                                    }
+
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="load-more text-center mt-5">
+                    <Services.Client.Shared.PaginationCop TotalPagesQuantity="totalPagesQuantity"
+                                                          CurrentPage="currentPage" Radius="2" SelectedPage="SelectedPage"></Services.Client.Shared.PaginationCop>
+                </div>
+            }
+           
+
+        </div>
+        </div>
+    </div>
+
+        @code {
+            private int totalPagesQuantity;
+            private int currentPage = 1;
+
+            HttpClient client = new HttpClient();
+            List<OfferViewModel> offers = new List<OfferViewModel>();
+            public string message = string.Empty;
+            public AlertMessageType messageType = AlertMessageType.Success;
+
+            public bool isNotEmpty = true;
+
+
+            protected override async Task OnInitializedAsync()
+            {
+                await LoadData();
+            }
+
+            private async Task SelectedPage(int page)
+            {
+                currentPage = page;
+                await LoadData();
+            }
+
+            protected async Task LoadData(int page = 1, int quantityPerPage = 5)
+            {
+                var response = await client.GetAsync($"https://localhost:44312/api/UserProfile/useroffers?page={page}&quantityPerPage={quantityPerPage}");
+                if ((int)response.StatusCode == 200)
+                {
+                    totalPagesQuantity = int.Parse(response.Headers.GetValues("pagesQuantity").FirstOrDefault());
+                    var contentString = await response.Content.ReadAsStringAsync();
+                    offers = JsonSerializer.Deserialize<List<OfferViewModel>>(contentString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                }
+                if ((int)response.StatusCode == 205)
+                {
+
+                    isNotEmpty = false;
+                    message = "لم تضيف اى عروض الى الان";
+                    messageType = AlertMessageType.Error;
+                    offers = new List<OfferViewModel>();
+                }
+            }
+
+        }
+

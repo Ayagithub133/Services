@@ -1,0 +1,170 @@
+﻿@page "/searchpage"
+
+@using System.Text.Json
+@using Services.Shared.Data
+@inject NavigationManager navigate
+
+
+<div class="container-fluid " style="direction:rtl;margin-bottom:100px;margin-top:100px">
+
+    <div class="row d-inline-flex" style="width:30%;position:fixed;right:0;bottom:50px;margin-right:5px">
+        <div class="col-12 theiaStickySidebar" style="background-color:#475c7a">
+
+            <!-- Search Filter -->
+            <div class="card ">
+                <div class="card-header pt-5" style="background-color:#63a4ff ">
+                    <h4 class="card-title text-right text-light">فلتر البحث</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group ">
+                        <label class="col-form-label  d-flex align-items-end label-style">نوع الخدمة</label>
+                        <select class="custom-select controls-style" @bind="ServiceType">
+
+                            <option value="1">قاعة مناسبات</option>
+                            <option value="2">مستلزمات البناء</option>
+                            <option value="3">كبيرةتنسيق الحدائق</option>
+                        </select>
+                    </div>
+                    <div class="form-group ">
+
+                        <input class="form-control controls-style" type="text" id="example-search-input" placeholder="عنوان الخدمة" @bind="@ServiceTitle">
+                    </div>
+
+                    <div class="form-group ">
+                        <label for="example-date-input  d-flex align-items-end label-style" class="col-form-label  d-flex align-items-end label-style">تاريخ الحجز</label>
+                        <input class="form-control controls-style" type="date" placeholder="تاريخ الحجز" id="example-date-input" @bind="@BookDate">
+                    </div>
+                    <div class="form-group ">
+                        <label for="example-search-input" class="col-form-label  d-flex align-items-end label-style">عنوان الحجز</label>
+                        <input class="form-control controls-style" type="text" id="example-search-input" @bind="@Address">
+                    </div>
+                    <div class="btn-search">
+                        <button type="submit" class="btn btn-block text-light " style="background-color:#475c7a" @onclick="Filter">بحث</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row d-inline-flex" style="width:60%">
+        @if (halls.Count == 0)
+        {
+
+        <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+        }
+
+        else 
+        {
+
+        foreach (var item in halls)
+        {
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 d-flex align-content-end" style="margin:auto">
+                                <img src="imgs/login.jpg" class="img-fluid circle-img" />
+                            </div>
+                            <div class="col-8" style="margin:auto">
+                                <div class="row" style="width:100%">
+                                   <div class="col-12  d-flex align-content-end">
+                                        <a href="#">@item.ServiceTitle</a>
+                                    </div>
+
+                                    <div class="col-6  d-flex align-content-end mt-1">
+
+                                        <img src="icons/user.png" style="width:30px;height:30px" />
+
+                                        <a href="#">@item.UserName</a>
+
+
+                                    </div>
+                                    <div class="col-6  d-flex align-content-end mt-1">
+
+                                        <img src="icons/clock.gif" style="width:30px;height:30px" />
+
+                                        <p>منذ @item.TimeAdd.ToShortDateString()</p>
+
+
+                                    </div>
+                                    <div class="col-9  d-flex align-content-center text-justify mt-2">
+
+                                        <p>
+                                            @item.HallDescription
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        <div class="load-more text-center mt-5">
+            <Services.Client.Shared.PaginationCop TotalPagesQuantity="totalPagesQuantity"
+                           CurrentPage="currentPage" Radius="2" SelectedPage="SelectedPage"></Services.Client.Shared.PaginationCop>
+        </div>
+            }
+        }
+
+    </div>
+</div>
+
+
+
+
+@code{
+
+    private int ServiceType { set; get; }
+    private string ServiceTitle { set; get; }
+    private DateTime BookDate { set; get; }
+    private string Address { set; get; }
+    private int totalPagesQuantity;
+    private int currentPage = 1;
+    public string message = string.Empty;
+    public AlertMessageType messageType = AlertMessageType.Success;
+
+    public List<HallViewModelResponse> halls = new List<HallViewModelResponse>();
+
+    HttpClient client = new HttpClient();
+
+    private async Task Filter()
+    {
+        currentPage = 1;
+        await LoadData();
+    }
+    private async Task SelectedPage(int page)
+    {
+        currentPage = page;
+        await LoadData();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+
+    }
+
+    protected async Task LoadData(int page = 1, int quantityPerPage = 10,int ServiceType=1)
+    {
+
+        var httpResponse = await client.GetAsync($"https://localhost:44312/api/Search/Pagined?page={page}&quantityPerPage={quantityPerPage}&ServiceTitle={ServiceTitle}&ServiceType={ServiceType}&Address={Address}&BookDate={BookDate}");
+        if ((int)httpResponse.StatusCode == 200)
+        {
+            
+            totalPagesQuantity = int.Parse(httpResponse.Headers.GetValues("pagesQuantity").FirstOrDefault());
+            var contentString = await httpResponse.Content.ReadAsStringAsync();
+            halls = JsonSerializer.Deserialize<List<HallViewModelResponse>>(contentString,
+                new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+        }
+
+        else if((int)httpResponse.StatusCode == 204)
+        {
+            message = "لايوجد نتائج بحث";
+            messageType = AlertMessageType.Error;
+            halls = new List<HallViewModelResponse>();
+        }
+    }
+}

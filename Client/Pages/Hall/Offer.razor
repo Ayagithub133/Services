@@ -1,0 +1,364 @@
+﻿@page "/Hall/offer/{Id}"
+@using Services.Shared.Data
+@using System.Text.Json
+@using Microsoft.AspNetCore.SignalR.Client
+
+
+@inject NavigationManager NavigationManager
+
+
+
+<div class="container-fluid text-right " style="margin-top:100px;margin-bottom:100px;direction:rtl">
+    <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+    @if (hall != null)
+    {
+        <div class="row">
+
+            <div class="col-8 mt-2 ">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-12">  <h3>الخدمة المطلوبة:</h3></div>
+
+                            <div class="col-12">
+                                <p style="font-size:18px">@hall.ServiceTitle.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-1">
+
+            <div class="col-8 mt-1 ">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-12">  <h3>صاحب الخدمة:</h3></div>
+
+                            <div class="col-3">
+                                <img class="img-fluid img-style" src="imgs/pic.png" style="width:100px;height:100px" />
+                            </div>
+                            <div class="col-7 d-flex align-items-center" style="height:2em">
+                                <p style="font-size:18px">@hall.UserName</p>
+                            </div>
+                            <div class="col-3"></div>
+                            <div class="col-3" style="text-align:right;margin-top:-60px">
+                                <span style="font-size:21px">المدينة:</span>
+
+                                <span style="font-size:19px">@hall.UserCity</span>
+
+                            </div>
+                            <div class="col-6" style="text-align:right;margin-top:-60px">
+                                <span style="font-size:21px">رقم التواصل:</span>
+
+                                <span style="font-size:19px">@hall.UserContact</span>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-1">
+
+            <div class="col-8 mt-1 ">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-12">  <h5>تفاصيل الخدمة:</h5></div>
+
+                            <div class="col-8 d-flex align-content-center text-justify">
+                                <p class="text-center text-justify" style="width:100% ; font-size:18px">
+                                    @hall.HallDescription
+
+                                </p>
+                            </div>
+
+
+                        </div>
+                        <hr />
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-3">  <h5>السعر المقترح:</h5></div>
+
+                            <div class="col-7 d-flex align-content-center text-justify">
+                                <p style="font-size:18px">@hall.Budget ريال</p>
+                            </div>
+
+
+                        </div>
+                        <hr />
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-3">  <h5>عدد أفراد الحضور:</h5></div>
+
+                            <div class="col-7 d-flex align-content-center text-justify">
+                                <p style="font-size:18px">@hall.GuestNumber فرد</p>
+                            </div>
+
+
+                        </div>
+                        <hr />
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-3">  <h3>قائمة الطعام:</h3></div>
+
+                            <div class="col-7 d-flex align-content-center text-justify">
+                                <p style="font-size:18px">@hall.Menue</p>
+                            </div>
+
+
+                        </div>
+                        <hr />
+                        <div class="row" style="width:100%;direction:rtl">
+                            <div class="col-3">  <h3>تاريخ الحجز:</h3></div>
+
+                            <div class="col-7 d-flex align-content-center text-justify">
+                                <p style="font-size:18px">@hall.BookDate.ToShortDateString()</p>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <hr />
+
+
+
+        <AuthorizeView Context="authContext">
+            <NotAuthorized>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h3 style="color:white"> لوضع عرض مناسب<a href="/User/login" style="color:white;font-size:19px">قم بتسجيل الدخول</a></h3>
+                    </div>
+                </div>
+            </NotAuthorized>
+            <Authorized>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h3 style="color:white">أضف عرضك</h3>
+                    </div>
+                </div>
+                <EditForm Model="@offer" Context="offerContext">
+                    <DataAnnotationsValidator></DataAnnotationsValidator>
+                    <ValidationSummary></ValidationSummary>
+                    <div class="row">
+
+
+                        @*<TextMessage Message="@message" MessageType="@messageType"></TextMessage>*@
+                        <div class="col-8">
+                            <p class="text-danger " style="font-size:18px">*تفاصيل العرض</p>
+                            <textarea style="width:100%;height:200px;padding:5px;border-radius:5px" @bind="@offer.TextOffer"></textarea>
+
+                        </div>
+                        <div class="col-8">
+                            <div class="row" style="width:100%">
+                                <div class="col-6">
+                                    <p class="text-danger " style="font-size:18px">*السعر</p>
+                                    <input type="text" class="form-control" style="width:100%;padding:5px;border-radius:5px" @bind="@offer.Budget" />
+                                </div>
+                                <div class="col-6">
+                                    <p class="text-danger " style="font-size:18px">*نوع العرض</p>
+                                    <select @bind="@offer.ServiceID" style="width:100%;padding:5px;border-radius:5px" class="form-control">
+                                        <option value="1" selected>قاعات المناسبات</option>
+                                        <option value="2">تنسيق الحدائق</option>
+                                        <option value="3">ادوات البناء</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-5 mt-1">
+                            <button type="submit" class="btn btn-primary" style="width:60%;background-color:#fcbb6d" @onclick="AddOffer">أضف</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Authorized>
+        </AuthorizeView>
+        @if (offers.Count() != 0 || offers != null)
+        {
+            <div>
+                <p style="font-size:30px;margin-top:20px">
+                    العروض المقدمة
+                </p>
+            </div>
+            <div class="row mt-5">
+
+                @foreach (var item in offers)
+                {
+                    <div class="col-8 mt-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-4 d-flex align-content-end">
+                                        <img src="imgs/login.jpg" class="img-fluid img-style" />
+                                    </div>
+                                    <div class="col-8 ">
+                                        <div class="row" style="width:100%">
+
+
+                                            <div class="col-6  d-flex align-content-end mt-1">
+
+                                                <img src="icons/user.png" style="width:30px;height:30px" />
+
+                                                <a href="@($"/User/personalData/{item.UserId}")">@item.UserName</a>
+
+
+                                            </div>
+                                            <div class="col-6  d-flex align-content-end mt-1">
+
+                                                <img src="icons/clock.gif" style="width:30px;height:30px" />
+
+                                                <p>@item.AddTime.ToShortDateString()</p>
+
+
+                                            </div>
+                                            <div class="col-9  d-flex align-content-center text-justify mt-2">
+
+                                                <p class="text-center text-justify" style="width:100%">
+                                                    @item.TextOffer
+
+                                                </p>
+                                            </div>
+                                            <AuthorizeView>
+                                                <Authorized>
+                                                    <div class="col-3">
+                                                        <a href="@($"/User/chat/{item.UserId}")" class=" btn btn-outline-primary col-12">مراسلة</a>
+                                                    </div>
+                                                </Authorized>
+                                            </AuthorizeView>
+                                            
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+            </div>
+        }
+
+    }
+    else
+    {
+        <div>
+            <img src="imgs/loading.jpg" style="position:fixed;left:0px;top:0px;
+        width:100%; height:100%; z-index:9999;background:center  #fff" />
+        </div>
+    }
+
+</div>
+
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { set; get; }
+
+
+    HttpClient client = new HttpClient();
+    public string message = string.Empty;
+    public AlertMessageType messageType = AlertMessageType.Success;
+    HallDetailResponse hall = new HallDetailResponse();
+    OfferViewModel offer = new OfferViewModel();
+    List<OfferViewModel> offers = new List<OfferViewModel>();
+    public bool isEmpty = true;
+
+
+    private HubConnection hubConnection;
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+
+
+        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/signalRHub")).Build();
+
+        hubConnection.On<OfferViewModel>("ReceiveComment", (offer) =>
+        {
+
+
+            offers.Add(offer);
+            StateHasChanged();
+
+        });
+
+      await hubConnection.StartAsync();
+
+
+    }
+
+    async Task Send()
+    {
+        if (!IsConnected)
+        { await hubConnection.StartAsync(); }
+        offer.AddTime = DateTime.Now;
+        await hubConnection.SendAsync("AddComment", offer);
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public async Task LoadData()
+    {
+
+        var response = await client.GetAsync($"https://localhost:44312/api/Hall/gethall?id={Id}");
+
+        if ((int)response.StatusCode == 200)
+        {
+            var contentString = await response.Content.ReadAsStringAsync();
+            hall = JsonSerializer.Deserialize<HallDetailResponse>(contentString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            offers = hall.OffersPosted.ToList();
+        }
+
+
+        else if ((int)response.StatusCode == 205)
+        {
+            message = "هذه الخدمة غير مطلوبة";
+            messageType = AlertMessageType.Error;
+            isEmpty = true;
+        }
+
+    }
+
+
+    public async Task AddOffer()
+    {
+        await Send();
+        offer.HallID = hall.Id;
+        var response = await client.PostAsJsonAsync("https://localhost:44312/api/Offer/addoffer", offer);
+        var responseBody = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+
+        if (responseBody.IsSuccess)
+        {
+            message = responseBody.Message; 
+            messageType = AlertMessageType.Success;
+            await LoadData();
+
+        }
+        else
+        {
+            message = responseBody.Message;
+            messageType = AlertMessageType.Error;
+        }
+
+    }
+
+
+}

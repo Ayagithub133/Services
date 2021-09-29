@@ -1,0 +1,88 @@
+﻿
+@using Services.Shared.Data
+@using System.Text.Json
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+
+@if (offers.Count() != 0)
+{
+    <div class="row mt-2">
+
+        @foreach (var item in offers)
+        {
+            <div class="col-8 mt-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 d-flex align-content-end">
+                                <img src="imgs/login.jpg" class="img-fluid img-style" />
+                            </div>
+                            <div class="col-8 ">
+                                <div class="row" style="width:100%">
+
+
+                                    <div class="col-6  d-flex align-content-end mt-1">
+
+                                        <img src="icons/user.png" style="width:30px;height:30px" />
+
+                                        <a href="#">@item.UserName</a>
+
+
+                                    </div>
+                                    <div class="col-6  d-flex align-content-end mt-1">
+
+                                        <img src="icons/clock.gif" style="width:30px;height:30px" />
+
+                                        <p>@item.AddTime.ToShortDateString()</p>
+
+
+                                    </div>
+                                    <div class="col-12  d-flex align-content-center text-justify mt-2">
+
+                                        <p class="text-center text-justify" style="width:100%">
+                                            @item.TextOffer
+
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<OfferViewModel> offers { set; get; }
+    private HubConnection hubConnection;
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/signalRHub")).Build();
+
+
+
+        hubConnection.On<OfferViewModel>("ReceiveComment", async (offer) =>
+        {
+            offers.Add(offer);
+
+        });
+        await hubConnection.StartAsync();
+    }
+
+
+
+}

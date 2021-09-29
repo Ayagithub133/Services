@@ -1,0 +1,67 @@
+﻿@page "/User/confirm"
+
+@inject NavigationManager _navigate; 
+@using Services.Shared.Data
+
+<div class="content success-page-cont" style="margin-top:10em">
+    <div class="container-fluid">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+
+                <!-- Success Card -->
+                <div class="card success-card">
+                    <div class="card-body">
+                
+                            <div class="col-11">
+                                <Services.Client.Shared.TextMessage Message="@message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+                            </div>
+                        
+                        <div class="success-cont">
+                            <h>SMS أدخل الكود المرسل عبر رسائل</h>
+                            <div class="form-group">
+
+                                <input type="text" class="form-control" @bind="@Code.VertificationCode">
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary btn-block btn-lg login-btn " type="submit" @onclick="UserRegistered">تأكيد</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Success Card -->
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+
+    RegisterViewModel model2 = new RegisterViewModel();
+    HttpClient _client = new HttpClient();
+    Vertification Code = new Vertification();
+    string message = string.Empty;
+    AlertMessageType messageType = AlertMessageType.Success;
+    protected async Task UserRegistered()
+    {
+
+
+        var response = await _client.PostAsJsonAsync("https://localhost:44312/api/AccountUser/confirmSMSCode",Code);
+
+        var responseBody = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+
+        if (!responseBody.IsSuccess)
+        {
+            message = responseBody.Message;
+            messageType = AlertMessageType.Error;
+        }
+
+        _navigate.NavigateTo("/User/login");
+    }
+}

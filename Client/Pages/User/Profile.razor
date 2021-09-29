@@ -1,0 +1,59 @@
+﻿@page "/User/profile"
+
+
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container-fluid mt-5 " style="direction:rtl">
+            <div class="row">
+
+                <div class="btn-group" style="margin-top:100px">
+                    <button class="btn btn-group tabs" @onclick="() => selected = Array.IndexOf(types, types[0])">
+                        الحساب الشخصى
+                    </button>
+                    <button class="btn btn-group tabs" @onclick="() => selected = Array.IndexOf(types, types[1])">
+                        تعديل الحساب
+                    </button>
+
+                    <button class=" tabs btn btn-group  " @onclick="() => selected = Array.IndexOf(types, types[2])">
+                        الخدمات
+                    </button>
+                    <button class="btn btn-group tabs" @onclick="() => selected = Array.IndexOf(types, types[3])">
+                        طلبات الخدمات
+                    </button>
+                    <button class="btn btn-group tabs" @onclick="() => selected = Array.IndexOf(types, types[4])">
+                        الرسائل
+                    </button>
+
+                </div>
+
+
+            </div>
+        </div>
+        @GetRenderFragment(types[selected])
+
+    </Authorized>
+    <NotAuthorized>
+        <Services.Client.Pages.User.Login></Services.Client.Pages.User.Login>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    RenderFragment GetRenderFragment(Type type)
+    {
+        RenderFragment renderFragment = renderTreeBuilder =>
+        {
+            renderTreeBuilder.OpenComponent(0, type);
+            renderTreeBuilder.CloseComponent();
+        };
+        return renderFragment;
+    }
+    int selected;
+    ComponentBase[] components = { new PersonalData(), new EditProfile(), new Service() ,new Offers(),new Chat()};
+    Type[] types => components.Select(c => c.GetType()).ToArray();
+
+
+
+}

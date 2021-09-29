@@ -1,0 +1,10 @@
+﻿body {
+}
+.form-design {
+    width:80%;
+    height: 400px;
+    margin-top: 100px;
+    margin-bottom: 200px;
+    border-radius: 5px;
+    background-color:white;
+}

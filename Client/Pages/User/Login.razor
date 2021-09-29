@@ -1,0 +1,53 @@
+﻿@page "/User/login"
+@using Services.Shared.Data
+@inject NavigationManager navigate
+
+
+<div class="form-design container">
+    <div class="row">
+        <div class="col-lg-6 d-flex align-content-center ">
+            <EditForm Model="@model">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group div-input row">
+                    <div class="col-11">
+                        <Services.Client.Shared.TextMessage Message="@Message" MessageType="@messageType"></Services.Client.Shared.TextMessage>
+                    </div>
+                    <input type="text" placeholder="رقم الهاتف" class="form-control col-12" @bind="@model.PhoneNumber" />
+                    <input type="password" placeholder="كلمة المرور" class="form-control col-12" @bind="@model.Password" />
+                    <button type="submit" class="form-control col-12" @onclick="Log">تسجيل الدخول</button>
+                    <a href="/User/register">أليس لديك حساب؟</a>          
+
+    
+                </div>
+            </EditForm>
+
+        </div>
+
+        <div class="col-lg-6 div-login-img d-flex align-content-center align-items-center">
+            <img class="img-fluid " src="imgs/login.jpg" />
+        </div>
+    </div>
+</div>
+
+@code {
+    public LoginViewModel model = new LoginViewModel();
+    public HttpClient _client = new HttpClient();
+    public string Message = string.Empty;
+    AlertMessageType messageType = AlertMessageType.Success;
+
+    public async Task Log()
+    {
+        var response = await _client.PostAsJsonAsync("https://localhost:44312/api/AccountUser/login", model);
+        var responseBody = await response.Content.ReadFromJsonAsync<UserManagerResponse>();
+        if(responseBody.IsSuccess)
+        {
+            navigate.NavigateTo("/User/profile",forceLoad:true);
+        }
+        else
+        {
+            Message = responseBody.Message;
+            messageType = AlertMessageType.Error;
+        }
+    }
+}
